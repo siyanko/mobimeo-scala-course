@@ -1,7 +1,9 @@
-trait Logging {
-  def printlnInfo(message: String): DemoEffect[Unit]
+import categories.Applicative
+
+trait Logging[F[_]] {
+  def printlnInfo(message: String)(implicit applicative: Applicative[F]): F[Unit]
 }
 
-object SimpleLogging extends Logging {
-  override def printlnInfo(message: String): DemoEffect[Unit] = DemoEffect.delay(println(s"Log message: $message"))
+class SimpleLogging[F[_]] extends Logging[F] {
+  override def printlnInfo(message: String)(implicit applicative: Applicative[F]): F[Unit] = applicative.point(println(s"Log message: $message"))
 }

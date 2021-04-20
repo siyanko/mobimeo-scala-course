@@ -1,9 +1,11 @@
-trait Database {
-  def fetchingDataFromDB: DemoEffect[Unit]
+import categories.Applicative
+
+trait Database[F[_]] {
+  def fetchingDataFromDB(implicit applicative: Applicative[F]): F[Unit]
 }
 
-object SimpleDB extends Database{
-  override def fetchingDataFromDB: DemoEffect[Unit] = DemoEffect.delay(
+class SimpleDB[F[_]] extends Database[F]{
+  override def fetchingDataFromDB(implicit applicative: Applicative[F]): F[Unit] = applicative.point(
     println("Fetching data from DB")
   )
 }

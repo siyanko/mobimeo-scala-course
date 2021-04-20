@@ -1,9 +1,11 @@
-trait Hafas {
-  def fetchingDataFromHafas: DemoEffect[Unit]
+import categories.Applicative
+
+trait Hafas[F[_]] {
+  def fetchingDataFromHafas(implicit applicative: Applicative[F]): F[Unit]
 }
 
-object SimpleHafas extends Hafas {
-  override def fetchingDataFromHafas: DemoEffect[Unit] = DemoEffect.delay(
+class SimpleHafas[F[_]] extends Hafas[F] {
+  override def fetchingDataFromHafas(implicit applicative: Applicative[F]): F[Unit] = applicative.point(
     println("Fetching data from HAFAS")
   )
 }

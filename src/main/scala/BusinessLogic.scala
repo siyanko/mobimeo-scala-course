@@ -1,12 +1,23 @@
+import categories.{Applicative, Functor, Monad}
+import categories.Functor._
+import categories.Monad._
+
 object BusinessLogic {
-  def program(db: Database, hafas: Hafas, logging: Logging, metrics: Metrics): DemoEffect[Unit] = for {
-    _ <- metrics.inc()
+  def program[F[_]](implicit db: Database[F],
+                    hafas: Hafas[F],
+                    logging: Logging[F],
+                    metrics: Metrics[F], functor: Functor[F], monad: Monad[F], applicative: Applicative[F]): F[Unit] = for {
+    _ <- metrics.inc
     _ <- logging.printlnInfo("Starting execution")
     _ <- db.fetchingDataFromDB
-    _ <- metrics.inc()
+    _ <- metrics.inc
     _ = println("Going to call HAFAS")
     _ <- hafas.fetchingDataFromHafas
     _ <- logging.printlnInfo("Executed successfully")
-    _ <- metrics.inc()
+    _ <- metrics.inc
   } yield ()
+
+  //flatMap => Monad
 }
+
+
