@@ -44,7 +44,7 @@ object Main {
 
     BusinessLogic.program[Option](simpleDB2, simpleHafas2, simpleLogging2, simpleMetrics2).get
 
-    BusinessLogic.program[Option].get
+    // BusinessLogic.program[Option].get
   }
 }
 
