@@ -28,23 +28,23 @@ object Main {
     }
 
     val simpleDB: Database[DemoEffect] = new SimpleDB[DemoEffect]
-    val simpleDB2: Database[Option] = new SimpleDB[Option]
+    implicit val simpleDB2: Database[Option] = new SimpleDB[Option]
 
     val simpleHafas: Hafas[DemoEffect] = new SimpleHafas[DemoEffect]
-    val simpleHafas2: Hafas[Option] = new SimpleHafas[Option]
+    implicit val simpleHafas2: Hafas[Option] = new SimpleHafas[Option]
 
     val simpleLogging: Logging[DemoEffect] = new SimpleLogging[DemoEffect]
-    val simpleLogging2: Logging[Option] = new SimpleLogging[Option]
+    implicit val simpleLogging2: Logging[Option] = new SimpleLogging[Option]
 
     val simpleMetrics: Metrics[DemoEffect] = new SimpleMetrics[DemoEffect]
-    val simpleMetrics2: Metrics[Option] = new SimpleMetrics[Option]
+    implicit val simpleMetrics2: Metrics[Option] = new SimpleMetrics[Option]
 
     // call at end of the world
 //    BusinessLogic.program[DemoEffect](simpleDB, simpleHafas, simpleLogging, simpleMetrics).f0()
 
-    BusinessLogic.program[Option](simpleDB2, simpleHafas2, simpleLogging2, simpleMetrics2).get
+    // BusinessLogic.program[Option](simpleDB2, simpleHafas2, simpleLogging2, simpleMetrics2).get
 
-    // BusinessLogic.program[Option].get
+    BusinessLogic.program[Option].get
   }
 }
 

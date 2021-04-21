@@ -3,10 +3,13 @@ import categories.Functor._
 import categories.Monad._
 
 object BusinessLogic {
-  def program[F[_]](db: Database[F],
+  def program[F[_]](implicit db: Database[F],
                     hafas: Hafas[F],
                     logging: Logging[F],
-                    metrics: Metrics[F])(implicit functor: Functor[F], monad: Monad[F], applicative: Applicative[F]): F[Unit] = for {
+                    metrics: Metrics[F],
+                    functor: Functor[F],
+                    monad: Monad[F],
+                    applicative: Applicative[F]): F[Unit] = for {
     _ <- metrics.inc
     _ <- logging.printlnInfo("Starting execution")
     _ <- db.fetchingDataFromDB
@@ -19,5 +22,4 @@ object BusinessLogic {
 
   //flatMap => Monad
 }
-
 
