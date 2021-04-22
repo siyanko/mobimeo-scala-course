@@ -1,4 +1,4 @@
-import categories.Applicative
+import cats.Applicative
 
 trait Logging[F[_]] {
   def printlnInfo(message: String)(implicit applicative: Applicative[F]): F[Unit]

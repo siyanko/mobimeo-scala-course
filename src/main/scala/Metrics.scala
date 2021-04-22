@@ -1,4 +1,4 @@
-import categories.Applicative
+import cats.Applicative
 
 trait Metrics[F[_]]{
   def inc(implicit applicative: Applicative[F]): F[Unit]
