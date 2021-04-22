@@ -1,3 +1,5 @@
+package disruption
+
 sealed trait Disruption {
   def showMe: String
 }
@@ -16,8 +18,9 @@ case class Delay(delayInMin: Int) extends Disruption {
   override def showMe: String = "delay"
 }
 
+// 1 - 59 min
 object Delay {
-  def apply(): Delay = Delay(5)
+  def fromInt(i: Int): Option[Delay] = if (i > 0 && i < 60) Some(Delay(i)) else None
 }
 
 case object Cancellation extends Disruption {
