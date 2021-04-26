@@ -11,7 +11,7 @@ object Main extends IOApp {
 
     implicit val simpleMetrics2: Metrics[IO] = new SimpleMetrics[IO]
 
-    BusinessLogic.program[IO].handleErrorWith{
+    BusinessLogic.program[IO].handleErrorWith {
       case th: Throwable =>
         simpleLogging2.printlnInfo(s"ERROR >>> ${th.getMessage}")
     }.as(ExitCode.Success)
