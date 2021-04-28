@@ -19,7 +19,11 @@ object ServerApp extends IOApp {
   implicit val decoderPut: EntityDecoder[IO, PutRequest] = jsonOf[IO, PutRequest]
 
   override def run(args: List[String]): IO[ExitCode] = {
-    var storage: Map[String, Subscription] = Map.empty
+    implicit var storage: Map[String, Subscription] = Map.empty
+
+    def existsId(id: String, request: Option[PutRequest])(implicit storage: Map[String, Subscription]): Option[PutRequest] = {
+      if (!storage.contains(id)) None else request
+    }
 
     val helloWorldService: Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
       case GET -> Root / "hello" / name =>
@@ -46,7 +50,7 @@ object ServerApp extends IOApp {
         request <- req.as[PutRequest]
         maybeValidRequest = PutRequest.validate(request)
         _ <- IO(println(maybeValidRequest))
-        request = if (!storage.contains(id)) None else maybeValidRequest
+        request = existsId(id, maybeValidRequest)
         result <- request match {
           case None => BadRequest("Invalid body")
           case Some(request) =>
