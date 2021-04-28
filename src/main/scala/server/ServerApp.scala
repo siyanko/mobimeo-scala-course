@@ -21,8 +21,11 @@ object ServerApp extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     implicit var storage: Map[String, Subscription] = Map.empty
 
-    def existsId(id: String, request: Option[PutRequest])(implicit storage: Map[String, Subscription]): Option[PutRequest] = {
-      if (!storage.contains(id)) None else request
+    def existsId(id: String, request: Either[String, PutRequest])(implicit storage: Map[String, Subscription]): Either[String, PutRequest] = {
+      if (!storage.contains(id))
+        Left(s"The subscription with id $id does not exist + ${request.left.toOption.get}")
+      else
+        request
     }
 
     val helloWorldService: Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
@@ -52,8 +55,8 @@ object ServerApp extends IOApp {
         _ <- IO(println(maybeValidRequest))
         request = existsId(id, maybeValidRequest)
         result <- request match {
-          case None => BadRequest("Invalid body")
-          case Some(request) =>
+          case Left(value) => BadRequest(value)
+          case Right(request) =>
             val subscription = Subscription(id, request.origin, request.destination, request.label)
             storage = storage ++ Map(id -> subscription)
             println(storage)
@@ -85,7 +88,10 @@ object Domain {
   }
 
   object PutRequest {
-    def validate(request: PutRequest): Option[PutRequest] = if (request.origin.nonEmpty && request.destination.nonEmpty && request.label.nonEmpty)
-      Some(request) else None
+    def validate(request: PutRequest): Either[String, PutRequest] =
+      if (request.origin.nonEmpty && request.destination.nonEmpty && request.label.nonEmpty)
+        Right(request)
+      else
+        Left("Validation failed, missing attribute")
   }
 }
