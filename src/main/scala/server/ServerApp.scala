@@ -31,13 +31,13 @@ object ServerApp extends IOApp {
         request <- req.as[SubscriptionRequest]
         maybeValidRequest = SubscriptionRequest.validate(request)
         _ <- IO(println(maybeValidRequest))
-        _ <- IO(println(storage))
         result <- maybeValidRequest match {
           case None => BadRequest("Invalid body")
           case Some(request) =>
             val id = UUID.randomUUID().toString
             val subscription = Subscription(id, request.origin, request.destination, request.label)
             storage = Map(id -> subscription) ++ storage
+            println(storage)
             Ok(s"""{"id": $id}""")
         }
       } yield result
@@ -46,13 +46,13 @@ object ServerApp extends IOApp {
         request <- req.as[PutRequest]
         maybeValidRequest = PutRequest.validate(request)
         _ <- IO(println(maybeValidRequest))
-        _ <- IO(println(storage))
-        result <- maybeValidRequest match {
+        request = if (!storage.contains(id)) None else maybeValidRequest
+        result <- request match {
           case None => BadRequest("Invalid body")
           case Some(request) =>
-            if (!storage.contains(id)) BadRequest(s"Subscription with id $id does not exist")
             val subscription = Subscription(id, request.origin, request.destination, request.label)
-            storage = Map(id -> subscription) ++ storage
+            storage = storage ++ Map(id -> subscription)
+            println(storage)
             Ok(s"""{"id": $id}""")
         }
       } yield result
