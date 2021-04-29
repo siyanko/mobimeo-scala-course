@@ -19,9 +19,9 @@ object ServerApp extends IOApp {
   implicit val decoderPut: EntityDecoder[IO, PutRequest] = jsonOf[IO, PutRequest]
 
   override def run(args: List[String]): IO[ExitCode] = {
-    implicit var storage: Map[String, Subscription] = Map.empty
+    var storage: Map[String, Subscription] = Map.empty
 
-    def existsId(id: String, request: Either[String, PutRequest])(implicit storage: Map[String, Subscription]): Either[String, PutRequest] = {
+    def existsId(id: String, request: Either[String, PutRequest]): Either[String, PutRequest] = {
       if (!storage.contains(id))
         Left(s"The subscription with id $id does not exist + ${request.left.toOption.get}")
       else
