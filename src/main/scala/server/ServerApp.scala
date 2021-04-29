@@ -20,13 +20,19 @@ object ServerApp extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = {
     var storage: Map[String, Subscription] = Map.empty
+    type SubscriptionId = String
 
-    def existsId(id: String, request: Either[String, PutRequest]): Either[String, PutRequest] = {
+    def existsId(id: SubscriptionId): Either[String, SubscriptionId] = {
       if (!storage.contains(id))
         Left(s"The subscription with id $id does not exist")
       else
-        request
+        Right(id)
     }
+
+    def createSubscription(maybeId: Either[String, SubscriptionId], maybeRequest: Either[String, PutRequest]): Either[String, Subscription] = for {
+      id <- maybeId
+      request <- maybeRequest
+    } yield Subscription(id, request.origin, request.destination, request.label)
 
     val helloWorldService: Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
       case GET -> Root / "hello" / name =>
@@ -53,11 +59,10 @@ object ServerApp extends IOApp {
         request <- req.as[PutRequest]
         maybeValidRequest = PutRequest.validate(request)
         _ <- IO(println(maybeValidRequest))
-        request = existsId(id, maybeValidRequest)
-        result <- request match {
+        maybeId = existsId(id)
+        result <- createSubscription(maybeId, maybeValidRequest) match {
           case Left(value) => BadRequest(value)
-          case Right(request) =>
-            val subscription = Subscription(id, request.origin, request.destination, request.label)
+          case Right(subscription) =>
             storage = storage ++ Map(id -> subscription)
             println(storage)
             Ok(s"""{"id": $id}""")
