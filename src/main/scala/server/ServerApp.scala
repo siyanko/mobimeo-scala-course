@@ -23,7 +23,7 @@ object ServerApp extends IOApp {
 
     def existsId(id: String, request: Either[String, PutRequest]): Either[String, PutRequest] = {
       if (!storage.contains(id))
-        Left(s"The subscription with id $id does not exist + ${request.left.toOption.get}")
+        Left(s"The subscription with id $id does not exist")
       else
         request
     }
