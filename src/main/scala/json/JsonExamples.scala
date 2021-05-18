@@ -26,7 +26,7 @@ object JsonExamples {
   object DelayThreshold {
     def fromInt(i: Int): Either[String, DelayThreshold] =
       // depending on what is required more checks can be added here
-      if(i > 60 | i < 1) Left("out of range") else Right(DelayThreshold(i))
+      if(i > 59 | i < 1) Left("out of range") else Right(DelayThreshold(i))
 
     implicit val decoder: Decoder[DelayThreshold] = Decoder.decodeInt.emap(fromInt)
   }
@@ -54,7 +54,7 @@ object JsonExamples {
 //    println(request.asJson.noSpaces)
 
     val jsonStrRightDelay =
-      s"""{"label":"bla","destination":"Hbf", "origin":"Alexanderplatz","optDays":["mon","tue","wed"],"delayThreshold": 60}""".stripMargin
+      s"""{"label":"bla","destination":"Hbf", "origin":"Alexanderplatz","optDays":["mon","tue","wed"],"delayThreshold": 59}""".stripMargin
     println(parse(jsonStrRightDelay).flatMap(json => json.as[ConnectionAlarmRequest]))
 
     val jsonStrLeftDelay =
