@@ -22,20 +22,29 @@ object JsonExamples {
     implicit val decoder: Decoder[Origin] = Decoder.decodeString.map(Origin.apply)
   }
 
+  case class DelayThreshold(value: Int) extends AnyVal
+  object DelayThreshold {
+    def fromInt(i: Int): Either[String, DelayThreshold] =
+      // depending on what is required, more checks can be added here
+      if(i < 1 | i > 59) Left("out of range") else Right(DelayThreshold(i))
+
+    implicit val decoder: Decoder[DelayThreshold] = Decoder.decodeInt.emap(fromInt)
+  }
+
   case class Destination(value: String) extends AnyVal
   object Destination{
     implicit val decoder: Decoder[Destination] = Decoder.decodeString.map(Destination.apply)
   }
 
   case class ConnectionAlarmRequest(label2: SubscriptionLabel, origin: Origin, destination: Destination, optDays: List[String],
-                                    delayThreshold: Option[Int]) // 1 - 59 min
+                                    delayThreshold: DelayThreshold) // 1 - 59 min
   object ConnectionAlarmRequest{
     implicit val myDecoder: Decoder[ConnectionAlarmRequest] = Decoder.instance(hCursor => for {
       label2 <- hCursor.get[SubscriptionLabel]("label")
       origin <- hCursor.get[Origin]("origin")
       destination <- hCursor.get[Destination]("destination")
       optDays <- hCursor.get[List[String]]("optDays")
-      delayThreshold <- hCursor.get[Option[Int]]("delayThreshold")
+      delayThreshold <- hCursor.get[DelayThreshold]("delayThreshold")
     } yield ConnectionAlarmRequest(label2, origin, destination, optDays, delayThreshold))
   }
 
@@ -44,11 +53,13 @@ object JsonExamples {
 
 //    println(request.asJson.noSpaces)
 
-    val jsonStr =
-      s"""{"label":"","destination":"Hbf", "origin":"Alexanderplatz","optDays":["mon","tue","wed"],"delayThreshold": 5}""".stripMargin
+    val jsonStrRightDelay =
+      s"""{"label":"bla","destination":"Hbf", "origin":"Alexanderplatz","optDays":["mon","tue","wed"],"delayThreshold": 59}""".stripMargin
+    println(parse(jsonStrRightDelay).flatMap(json => json.as[ConnectionAlarmRequest]))
 
-    println(parse(jsonStr).flatMap(json => json.as[ConnectionAlarmRequest]))
-
+    val jsonStrLeftDelay =
+      s"""{"label":"bla","destination":"Hbf", "origin":"Alexanderplatz","optDays":["mon","tue","wed"],"delayThreshold": 0}""".stripMargin
+    println(parse(jsonStrLeftDelay).flatMap(json => json.as[ConnectionAlarmRequest]))
   }
 
 }
