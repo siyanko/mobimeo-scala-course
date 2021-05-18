@@ -25,8 +25,8 @@ object JsonExamples {
   case class DelayThreshold(value: Int) extends AnyVal
   object DelayThreshold {
     def fromInt(i: Int): Either[String, DelayThreshold] =
-      // depending on what is required more checks can be added here
-      if(i > 59 | i < 1) Left("out of range") else Right(DelayThreshold(i))
+      // depending on what is required, more checks can be added here
+      if(i < 1 | i > 59) Left("out of range") else Right(DelayThreshold(i))
 
     implicit val decoder: Decoder[DelayThreshold] = Decoder.decodeInt.emap(fromInt)
   }
